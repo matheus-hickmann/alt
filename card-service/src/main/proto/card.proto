@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.alt.proto.card";
+option java_outer_classname = "CardProto";
+
+package alt.card;
+
+message IssueVirtualCardRpcRequest {
+  string account_id = 1;
+}
+
+message IssueVirtualCardRpcResponse {
+  string id = 1;
+  string number = 2;
+  string masked_number = 3;
+  string brand = 4;
+  string expiration_date = 5;
+  string cardholder_name = 6;
+  string cvv = 7;
+}
+
+enum ReissueReasonRpc {
+  REISSUE_REASON_RPC_UNSPECIFIED = 0;
+  LOSS = 1;
+  THEFT = 2;
+  DAMAGE = 3;
+}
+
+message ReissueCardRpcRequest {
+  string card_id = 1;
+  ReissueReasonRpc reason = 2;
+}
+
+message ReissueCardRpcResponse {
+  string id = 1;
+  string masked_number = 2;
+  string brand = 3;
+}
+
+message GetFullCardRpcRequest {
+  string card_id = 1;
+}
+
+message GetFullCardRpcResponse {
+  string card_id = 1;
+  string brand = 2;
+  string number = 3;
+  string expiration_date = 4;
+  string cardholder_name = 5;
+  string cvv = 6;
+}
+
+message CancelCardRpcRequest {
+  string card_id = 1;
+}
+
+message CancelCardRpcResponse {}
+
+message ActivateCardRpcRequest {
+  string card_id = 1;
+}
+
+message ActivateCardRpcResponse {}
+
+message CancelCardsByAccountIdRpcRequest {
+  string account_id = 1;
+}
+
+message CancelCardsByAccountIdRpcResponse {}
+
+message CardSummaryRpc {
+  string id = 1;
+  string masked_number = 2;
+  string brand = 3;
+  string type = 4;
+}
+
+message ListCardsByAccountIdRpcRequest {
+  string account_id = 1;
+}
+
+message ListCardsByAccountIdRpcResponse {
+  repeated CardSummaryRpc cards = 1;
+}
+
+message CreatePhysicalCardRpcRequest {
+  string account_id = 1;
+}
+
+message CreatePhysicalCardRpcResponse {
+  string id = 1;
+  string number = 2;
+}
+
+service CardService {
+  rpc CreatePhysicalCard(CreatePhysicalCardRpcRequest) returns (CreatePhysicalCardRpcResponse);
+  rpc IssueVirtualCard(IssueVirtualCardRpcRequest) returns (IssueVirtualCardRpcResponse);
+  rpc ReissueCard(ReissueCardRpcRequest) returns (ReissueCardRpcResponse);
+  rpc GetFullCard(GetFullCardRpcRequest) returns (GetFullCardRpcResponse);
+  rpc CancelCard(CancelCardRpcRequest) returns (CancelCardRpcResponse);
+  rpc ActivateCard(ActivateCardRpcRequest) returns (ActivateCardRpcResponse);
+  rpc CancelCardsByAccountId(CancelCardsByAccountIdRpcRequest) returns (CancelCardsByAccountIdRpcResponse);
+  rpc ListCardsByAccountId(ListCardsByAccountIdRpcRequest) returns (ListCardsByAccountIdRpcResponse);
+}

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.alt.proto.account";
+option java_outer_classname = "AccountProto";
+
+package alt.account;
+
+// Card summary (first 4 and last 4 digits)
+message CardSummaryRpc {
+  string id = 1;
+  string masked_number = 2;
+  string brand = 3;
+  string type = 4;
+}
+
+message CreateAccountRpcRequest {
+  string name = 1;
+  string email = 2;
+  string document = 3;
+  string phone = 4;
+}
+
+message CreateAccountRpcResponse {
+  string account_number = 1;
+  string card_number = 2;
+}
+
+message GetAccountRpcRequest {
+  string account_id = 1;
+}
+
+message GetAccountRpcResponse {
+  string account_id = 1;
+  string account_number = 2;
+  string name = 3;
+  string email = 4;
+  string document = 5;
+  string status = 6;
+  repeated CardSummaryRpc cards = 7;
+}
+
+message CancelAccountRpcRequest {
+  string account_id = 1;
+}
+
+message CancelAccountRpcResponse {}
+
+service AccountService {
+  rpc CreateAccount(CreateAccountRpcRequest) returns (CreateAccountRpcResponse);
+  rpc GetAccount(GetAccountRpcRequest) returns (GetAccountRpcResponse);
+  rpc CancelAccount(CancelAccountRpcRequest) returns (CancelAccountRpcResponse);
+}
