@@ -1,6 +1,18 @@
 package com.alt.bff.client;
 
-import com.alt.proto.card.*;
+import com.alt.proto.card.ActivateCardRpcRequest;
+import com.alt.proto.card.ActivateCardRpcResponse;
+import com.alt.proto.card.CancelCardRpcRequest;
+import com.alt.proto.card.CancelCardRpcResponse;
+import com.alt.proto.card.CardServiceGrpc;
+import com.alt.proto.card.GetFullCardRpcRequest;
+import com.alt.proto.card.GetFullCardRpcResponse;
+import com.alt.proto.card.IssueVirtualCardRpcRequest;
+import com.alt.proto.card.IssueVirtualCardRpcResponse;
+import com.alt.proto.card.ListCardsByAccountIdRpcRequest;
+import com.alt.proto.card.ListCardsByAccountIdRpcResponse;
+import com.alt.proto.card.ReissueCardRpcRequest;
+import com.alt.proto.card.ReissueCardRpcResponse;
 import io.quarkus.grpc.GrpcClient;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -31,5 +43,13 @@ public class CardClient {
 
     public ActivateCardRpcResponse activateCard(ActivateCardRpcRequest request) {
         return stub.activateCard(request);
+    }
+
+    /**
+     * Lists cards for a given account by calling card-service directly.
+     */
+    public ListCardsByAccountIdRpcResponse listCardsByAccountId(String accountId) {
+        return stub.listCardsByAccountId(
+                ListCardsByAccountIdRpcRequest.newBuilder().setAccountId(accountId).build());
     }
 }

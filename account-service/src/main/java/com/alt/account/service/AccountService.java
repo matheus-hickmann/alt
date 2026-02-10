@@ -88,8 +88,20 @@ public class AccountService {
         return Optional.of(accountRpcMapper.toGetAccountRpcResponse(entry.value()));
     }
 
+    /**
+     * Returns cached account with cards, or fetches account + cards and stores in cache.
+     * Flow: on cache miss, fetch account from DB, fetch cards from card-service, then cache the combined result.
+     */
     @CacheResult(cacheName = "get-account")
     public GetAccountCacheEntry getAccountCached(String accountId) {
+        return fetchAccountWithCards(accountId);
+    }
+
+    /**
+     * Fetches account from DB, fetches cards from card-service, and builds the cache entry.
+     * Called on cache miss; result is stored in cache by getAccountCached.
+     */
+    public GetAccountCacheEntry fetchAccountWithCards(String accountId) {
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
         if (accountOpt.isEmpty()) {
             return GetAccountCacheEntry.notFound();

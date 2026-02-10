@@ -1,6 +1,7 @@
 package com.alt.account.messaging;
 
 import com.alt.account.service.AccountService;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -24,6 +25,7 @@ public class AccountCacheInvalidationConsumer {
     }
 
     @Incoming("invalidate-account-cache")
+    @Blocking
     public CompletionStage<Void> onInvalidateAccountCache(Message<String> message) {
         String accountId = message.getPayload();
         log.info("Kafka: invalidating getAccount cache for account {}", accountId);

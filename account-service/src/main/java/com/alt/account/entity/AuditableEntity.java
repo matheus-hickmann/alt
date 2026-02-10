@@ -19,7 +19,7 @@ public abstract class AuditableEntity extends PanacheEntity {
     public Instant updatedAt;
 
     @PrePersist
-    void prePersist() {
+    public void prePersist() {
         Instant now = Instant.now();
         if (createdAt == null) {
             createdAt = now;
@@ -28,7 +28,7 @@ public abstract class AuditableEntity extends PanacheEntity {
     }
 
     @PreUpdate
-    void preUpdate() {
+    public void preUpdate() {
         updatedAt = Instant.now();
     }
 }

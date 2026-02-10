@@ -1,7 +1,16 @@
 package com.alt.bff.mapper;
 
-import com.alt.proto.account.*;
-import com.alt.bff.resource.dto.account.*;
+import com.alt.bff.resource.dto.account.AccountResponse;
+import com.alt.bff.resource.dto.account.CardSummaryDto;
+import com.alt.bff.resource.dto.account.CreateAccountRequest;
+import com.alt.bff.resource.dto.account.CreateAccountResponse;
+import com.alt.proto.account.CancelAccountRpcRequest;
+import com.alt.proto.account.CreateAccountRpcRequest;
+import com.alt.proto.account.CreateAccountRpcResponse;
+import com.alt.proto.account.GetAccountRpcRequest;
+import com.alt.proto.account.GetAccountRpcResponse;
+import com.alt.proto.card.CardSummaryRpc;
+import com.alt.proto.card.ListCardsByAccountIdRpcResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
@@ -35,10 +44,11 @@ public class AccountRpcMapper {
         return new CreateAccountResponse(rpc.getAccountNumber(), rpc.getCardNumber());
     }
 
+    /**
+     * Maps account RPC (including cards) to DTO. Used when cards come from account-service.
+     */
     public AccountResponse toAccountResponse(GetAccountRpcResponse rpc) {
-        List<CardSummaryDto> cards = rpc.getCardsList().stream()
-                .map(c -> new CardSummaryDto(c.getId(), c.getMaskedNumber(), c.getBrand(), c.getType()))
-                .toList();
+        List<CardSummaryDto> cards = mapCardSummaries(rpc.getCardsList());
         return new AccountResponse(
                 rpc.getAccountId(),
                 rpc.getAccountNumber(),
@@ -48,5 +58,29 @@ public class AccountRpcMapper {
                 rpc.getStatus(),
                 cards
         );
+    }
+
+    /**
+     * Maps account RPC and a separate card-service response to DTO.
+     * Used by the BFF when fetching cards directly from card-service.
+     */
+    public AccountResponse toAccountResponse(GetAccountRpcResponse accountRpc,
+                                             ListCardsByAccountIdRpcResponse cardsRpc) {
+        List<CardSummaryDto> cards = mapCardSummaries(cardsRpc.getCardsList());
+        return new AccountResponse(
+                accountRpc.getAccountId(),
+                accountRpc.getAccountNumber(),
+                accountRpc.getName(),
+                accountRpc.getEmail(),
+                accountRpc.getDocument(),
+                accountRpc.getStatus(),
+                cards
+        );
+    }
+
+    private static List<CardSummaryDto> mapCardSummaries(List<CardSummaryRpc> rpcs) {
+        return rpcs.stream()
+                .map(c -> new CardSummaryDto(c.getId(), c.getMaskedNumber(), c.getBrand(), c.getType()))
+                .toList();
     }
 }

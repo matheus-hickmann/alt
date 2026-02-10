@@ -4,7 +4,6 @@ import com.alt.bff.resource.dto.account.AccountResponse;
 import com.alt.bff.resource.dto.account.CreateAccountRequest;
 import com.alt.bff.resource.dto.account.CreateAccountResponse;
 import com.alt.bff.service.AccountService;
-import io.quarkus.security.Authenticated;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -25,7 +24,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Accounts", description = "Operations related to user accounts")
-@Authenticated
 public class AccountResource {
 
     private final AccountService accountService;

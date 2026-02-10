@@ -6,6 +6,7 @@ import com.alt.proto.integrations.GetFullCardDataRpcResponse;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.cache.CacheResult;
 import io.quarkus.grpc.GrpcService;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Singleton;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,6 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class CardDataGrpcService extends CardDataServiceGrpc.CardDataServiceImplBase {
 
     @Override
+    @Blocking
     public void getFullCardData(GetFullCardDataRpcRequest request, StreamObserver<GetFullCardDataRpcResponse> responseObserver) {
         GetFullCardDataRpcResponse response = getFullCardDataCached(request.getCardId());
         responseObserver.onNext(response);

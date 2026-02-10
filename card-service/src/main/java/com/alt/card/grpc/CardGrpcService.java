@@ -8,6 +8,7 @@ import com.alt.proto.card.*;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 
 /**
@@ -20,6 +21,7 @@ public class CardGrpcService extends CardServiceGrpc.CardServiceImplBase {
     CardService cardService;
 
     @Override
+    @Blocking
     public void createPhysicalCard(CreatePhysicalCardRpcRequest request, StreamObserver<CreatePhysicalCardRpcResponse> responseObserver) {
         GrpcResponseHandler.handle(responseObserver,
                 () -> cardService.createPhysicalCard(request),
@@ -27,6 +29,7 @@ public class CardGrpcService extends CardServiceGrpc.CardServiceImplBase {
     }
 
     @Override
+    @Blocking
     public void issueVirtualCard(IssueVirtualCardRpcRequest request, StreamObserver<IssueVirtualCardRpcResponse> responseObserver) {
         // TODO: delegate to cardService.issueVirtualCard when implemented
         var response = IssueVirtualCardRpcResponse.newBuilder()
@@ -43,6 +46,7 @@ public class CardGrpcService extends CardServiceGrpc.CardServiceImplBase {
     }
 
     @Override
+    @Blocking
     public void reissueCard(ReissueCardRpcRequest request, StreamObserver<ReissueCardRpcResponse> responseObserver) {
         // TODO: delegate to cardService.reissueCard when implemented
         var response = ReissueCardRpcResponse.newBuilder()
@@ -55,6 +59,7 @@ public class CardGrpcService extends CardServiceGrpc.CardServiceImplBase {
     }
 
     @Override
+    @Blocking
     public void getFullCard(GetFullCardRpcRequest request, StreamObserver<GetFullCardRpcResponse> responseObserver) {
         // TODO: delegate to cardService.getFullCard when implemented
         var response = GetFullCardRpcResponse.newBuilder()
@@ -70,6 +75,7 @@ public class CardGrpcService extends CardServiceGrpc.CardServiceImplBase {
     }
 
     @Override
+    @Blocking
     public void cancelCard(CancelCardRpcRequest request, StreamObserver<CancelCardRpcResponse> responseObserver) {
         GrpcResponseHandler.handle(responseObserver,
                 () -> cardService.cancelCard(request),
@@ -77,6 +83,7 @@ public class CardGrpcService extends CardServiceGrpc.CardServiceImplBase {
     }
 
     @Override
+    @Blocking
     public void activateCard(ActivateCardRpcRequest request, StreamObserver<ActivateCardRpcResponse> responseObserver) {
         GrpcResponseHandler.handle(responseObserver,
                 () -> cardService.activateCard(request),
@@ -84,6 +91,7 @@ public class CardGrpcService extends CardServiceGrpc.CardServiceImplBase {
     }
 
     @Override
+    @Blocking
     public void cancelCardsByAccountId(CancelCardsByAccountIdRpcRequest request, StreamObserver<CancelCardsByAccountIdRpcResponse> responseObserver) {
         GrpcResponseHandler.handle(responseObserver,
                 () -> cardService.cancelCardsByAccountId(request),
@@ -91,6 +99,7 @@ public class CardGrpcService extends CardServiceGrpc.CardServiceImplBase {
     }
 
     @Override
+    @Blocking
     public void listCardsByAccountId(ListCardsByAccountIdRpcRequest request, StreamObserver<ListCardsByAccountIdRpcResponse> responseObserver) {
         GrpcResponseHandler.handle(responseObserver,
                 () -> cardService.listCardsByAccountId(request),

@@ -1,8 +1,16 @@
 package com.alt.bff.service;
 
 import com.alt.bff.client.AccountClient;
-import com.alt.proto.account.*;
-import com.alt.bff.resource.dto.account.*;
+import com.alt.bff.client.CardClient;
+import com.alt.bff.resource.dto.account.CreateAccountRequest;
+import com.alt.proto.account.CancelAccountRpcRequest;
+import com.alt.proto.account.CancelAccountRpcResponse;
+import com.alt.proto.account.CreateAccountRpcRequest;
+import com.alt.proto.account.CreateAccountRpcResponse;
+import com.alt.proto.account.GetAccountRpcRequest;
+import com.alt.proto.account.GetAccountRpcResponse;
+import com.alt.proto.card.CardSummaryRpc;
+import com.alt.proto.card.ListCardsByAccountIdRpcResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -24,6 +32,9 @@ class AccountServiceIT {
 
     @InjectMock
     AccountClient accountClient;
+
+    @InjectMock
+    CardClient cardClient;
 
     @Nested
     @DisplayName("createAccount")
@@ -52,24 +63,28 @@ class AccountServiceIT {
     class GetAccountData {
 
         @Test
-        void should_integrate_mapper_and_client_returning_account_with_cards() {
+        void should_integrate_mapper_and_clients_returning_account_with_cards_from_card_service() {
             var accountId = "acc_it_1";
-            var cardRpc = CardSummaryRpc.newBuilder()
-                    .setId("card-it-1")
-                    .setMaskedNumber("4532********1111")
-                    .setBrand("MASTERCARD")
-                    .setType("VIRTUAL")
-                    .build();
-            var rpcResponse = GetAccountRpcResponse.newBuilder()
+            var accountRpc = GetAccountRpcResponse.newBuilder()
                     .setAccountId(accountId)
                     .setAccountNumber("11111111")
                     .setName("Maria Santos")
                     .setEmail("maria@email.com")
                     .setDocument("98765432100")
                     .setStatus("ACTIVE")
+                    .build();
+            var cardRpc = CardSummaryRpc.newBuilder()
+                    .setId("card-it-1")
+                    .setMaskedNumber("4532********1111")
+                    .setBrand("MASTERCARD")
+                    .setType("VIRTUAL")
+                    .build();
+            var cardsResponse = ListCardsByAccountIdRpcResponse.newBuilder()
                     .addCards(cardRpc)
                     .build();
-            when(accountClient.getAccount(any(GetAccountRpcRequest.class))).thenReturn(rpcResponse);
+
+            when(accountClient.getAccount(any(GetAccountRpcRequest.class))).thenReturn(accountRpc);
+            when(cardClient.listCardsByAccountId(accountId)).thenReturn(cardsResponse);
 
             var response = accountService.getAccountData(accountId);
 
@@ -79,6 +94,7 @@ class AccountServiceIT {
             assertThat(response.cards()).hasSize(1);
             assertThat(response.cards().get(0).brand()).isEqualTo("MASTERCARD");
             verify(accountClient).getAccount(any(GetAccountRpcRequest.class));
+            verify(cardClient).listCardsByAccountId(accountId);
         }
     }
 

@@ -1,9 +1,19 @@
 package com.alt.bff.service;
 
 import com.alt.bff.client.AccountClient;
+import com.alt.bff.client.CardClient;
 import com.alt.bff.mapper.AccountRpcMapper;
-import com.alt.proto.account.*;
-import com.alt.bff.resource.dto.account.*;
+import com.alt.bff.resource.dto.account.CreateAccountRequest;
+import com.alt.bff.resource.dto.account.CreateAccountResponse;
+import com.alt.proto.account.CancelAccountRpcRequest;
+import com.alt.proto.account.CancelAccountRpcResponse;
+import com.alt.proto.account.CardSummaryRpc;
+import com.alt.proto.account.CreateAccountRpcRequest;
+import com.alt.proto.account.CreateAccountRpcResponse;
+import com.alt.proto.account.GetAccountRpcRequest;
+import com.alt.proto.account.GetAccountRpcResponse;
+import com.alt.proto.account.GetAccountRpcResponseOrBuilder;
+import com.alt.proto.card.ListCardsByAccountIdRpcResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,13 +34,16 @@ class AccountServiceTest {
     @Mock
     AccountClient accountClient;
 
+    @Mock
+    CardClient cardClient;
+
     AccountRpcMapper mapper = new AccountRpcMapper();
 
     AccountService accountService;
 
     @BeforeEach
     void setUp() {
-        accountService = new AccountService(accountClient, mapper);
+        accountService = new AccountService(accountClient, cardClient, mapper);
     }
 
     @Nested
@@ -59,24 +72,28 @@ class AccountServiceTest {
     class GetAccountData {
 
         @Test
-        void should_call_client_and_return_mapped_account() {
+        void should_call_clients_and_return_mapped_account_with_cards_from_card_service() {
             var accountId = "acc_123";
-            var cardRpc = CardSummaryRpc.newBuilder()
-                    .setId("card-1")
-                    .setMaskedNumber("4532********0366")
-                    .setBrand("VISA")
-                    .setType("PHYSICAL")
-                    .build();
-            var rpcResponse = GetAccountRpcResponse.newBuilder()
+            var accountRpc = GetAccountRpcResponse.newBuilder()
                     .setAccountId(accountId)
                     .setAccountNumber("12345678")
                     .setName("João Silva")
                     .setEmail("joao@email.com")
                     .setDocument("12345678901")
                     .setStatus("ACTIVE")
+                    .build();
+            var cardRpc = com.alt.proto.card.CardSummaryRpc.newBuilder()
+                    .setId("card-1")
+                    .setMaskedNumber("4532********0366")
+                    .setBrand("VISA")
+                    .setType("PHYSICAL")
+                    .build();
+            var cardsResponse = ListCardsByAccountIdRpcResponse.newBuilder()
                     .addCards(cardRpc)
                     .build();
-            when(accountClient.getAccount(any(GetAccountRpcRequest.class))).thenReturn(rpcResponse);
+
+            when(accountClient.getAccount(any(GetAccountRpcRequest.class))).thenReturn(accountRpc);
+            when(cardClient.listCardsByAccountId(accountId)).thenReturn(cardsResponse);
 
             var response = accountService.getAccountData(accountId);
 
@@ -86,6 +103,7 @@ class AccountServiceTest {
             assertThat(response.cards()).hasSize(1);
             assertThat(response.cards().get(0).id()).isEqualTo("card-1");
             verify(accountClient).getAccount(any(GetAccountRpcRequest.class));
+            verify(cardClient).listCardsByAccountId(accountId);
         }
     }
 

@@ -6,6 +6,7 @@ import com.alt.account.service.AccountService;
 import com.alt.proto.account.*;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 
 import java.util.NoSuchElementException;
@@ -20,6 +21,7 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
     AccountService accountService;
 
     @Override
+    @Blocking
     public void createAccount(CreateAccountRpcRequest request, StreamObserver<CreateAccountRpcResponse> responseObserver) {
         GrpcResponseHandler.handle(responseObserver,
                 () -> accountService.createAccount(request),
@@ -27,6 +29,7 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
     }
 
     @Override
+    @Blocking
     public void getAccount(GetAccountRpcRequest request, StreamObserver<GetAccountRpcResponse> responseObserver) {
         GrpcResponseHandler.handle(responseObserver,
                 () -> accountService.getAccount(request)
@@ -40,6 +43,7 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
     }
 
     @Override
+    @Blocking
     public void cancelAccount(CancelAccountRpcRequest request, StreamObserver<CancelAccountRpcResponse> responseObserver) {
         GrpcResponseHandler.handle(responseObserver,
                 () -> accountService.cancelAccount(request),

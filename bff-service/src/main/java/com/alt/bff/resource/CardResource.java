@@ -2,7 +2,6 @@ package com.alt.bff.resource;
 
 import com.alt.bff.resource.dto.card.*;
 import com.alt.bff.service.CardService;
-import io.quarkus.security.Authenticated;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -23,7 +22,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Cards", description = "Operations related to cards")
-@Authenticated
 public class CardResource {
 
     private final CardService cardService;

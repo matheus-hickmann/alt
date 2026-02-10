@@ -3,6 +3,7 @@ package com.alt.card.messaging;
 import com.alt.card.service.CardService;
 import com.alt.proto.card.CancelCardsByAccountIdRpcRequest;
 import com.alt.proto.card.CreatePhysicalCardRpcRequest;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -26,6 +27,7 @@ public class CardEventsConsumer {
     }
 
     @Incoming("create-physical-card")
+    @Blocking
     public CompletionStage<Void> onCreatePhysicalCard(Message<String> message) {
         String accountId = message.getPayload();
         log.info("Kafka: creating physical card for account {}", accountId);
@@ -40,6 +42,7 @@ public class CardEventsConsumer {
     }
 
     @Incoming("cancel-cards-by-account")
+    @Blocking
     public CompletionStage<Void> onCancelCardsByAccountId(Message<String> message) {
         String accountId = message.getPayload();
         log.info("Kafka: cancelling cards for account {}", accountId);

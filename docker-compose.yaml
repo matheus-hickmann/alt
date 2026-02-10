@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db-accounts:
     image: mysql:8.0
@@ -24,15 +22,17 @@ services:
     container_name: v-redis
     ports:
       - "6379:6379"
-    # Cache getAccount no account-service: TTL 15 min (configurado em application.properties)
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.5.0 # Versão fixa para evitar quebras
+    container_name: v-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.0 # Versão fixa compatível com Zookeeper
+    container_name: v-kafka
     depends_on:
       - zookeeper
     ports:
@@ -40,23 +40,28 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
+    container_name: v-kafdrop
     depends_on:
       - kafka
     ports:
-      - "9000:9000"
+      - "9099:9099"
     environment:
       KAFKA_BROKERCONNECT: "kafka:29092"
+      JVM_OPTS: "-Xms32M -Xmx64M"
 
   jaeger:
     image: jaegertracing/all-in-one:latest
+    container_name: v-jaeger
     ports:
-      - "16686:16686" # UI do Jaeger
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"

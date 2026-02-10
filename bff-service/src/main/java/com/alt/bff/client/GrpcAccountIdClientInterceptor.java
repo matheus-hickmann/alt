@@ -1,6 +1,6 @@
 package com.alt.bff.client;
 
-import com.alt.bff.auth.GrpcJwtPropagationContext;
+import com.alt.bff.auth.GrpcAccountIdPropagationContext;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -12,18 +12,19 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 /**
- * Interceptor gRPC que adiciona o header Authorization (JWT) da requisição HTTP atual
+ * Interceptor gRPC que adiciona o header x-account-id da requisição HTTP atual
  * ao metadata de todas as chamadas gRPC (account-service, card-service).
  */
 @GlobalInterceptor
 @ApplicationScoped
-public class GrpcJwtClientInterceptor implements ClientInterceptor {
+public class GrpcAccountIdClientInterceptor implements ClientInterceptor {
 
-    private static final Metadata.Key<String> AUTHORIZATION =
-            Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER);
+    public static final String ACCOUNT_ID_HEADER = "x-account-id";
+    private static final Metadata.Key<String> ACCOUNT_ID =
+            Metadata.Key.of(ACCOUNT_ID_HEADER, Metadata.ASCII_STRING_MARSHALLER);
 
     @Inject
-    GrpcJwtPropagationContext propagationContext;
+    GrpcAccountIdPropagationContext propagationContext;
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -31,14 +32,14 @@ public class GrpcJwtClientInterceptor implements ClientInterceptor {
             CallOptions callOptions,
             Channel next) {
         ClientCall<ReqT, RespT> call = next.newCall(method, callOptions);
-        String auth = propagationContext != null ? propagationContext.getAuthorizationHeader() : null;
-        if (auth == null || auth.isBlank()) {
+        String accountId = propagationContext != null ? propagationContext.getAccountId() : null;
+        if (accountId == null || accountId.isBlank()) {
             return call;
         }
         return new io.grpc.ForwardingClientCall.SimpleForwardingClientCall<>(call) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
-                headers.put(AUTHORIZATION, auth);
+                headers.put(ACCOUNT_ID, accountId);
                 super.start(responseListener, headers);
             }
         };
